@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #cf target -s system
-cd /Users/hmanukyan/workspace/metric-registrar-examples/golang/src/metric_registrar_examples;
+#cd /Users/hmanukyan/workspace/metric_registrar_go;
 
 export name="system"
 #cf create-org ${name}
