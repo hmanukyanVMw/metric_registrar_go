@@ -1,0 +1,129 @@
+---
+############## Resources ################
+resources:
+  - name: ci-docker
+    type: docker-image
+    source:
+      repository: pcfmetrics/catalyst
+      username: pcfmetrics
+      tag: ((docker-tag))
+      email: ((docker-email))
+      password: ((docker-password))
+
+  - name: metric-registrar-go
+    type: git
+    source:
+      uri: https://github.com/hmanukyanVMw/metric_registrar_go.git
+      branch: main
+    check_every: 5m
+############## Jobs ################
+jobs:
+  - name: create-and-remove-applications
+    serial: true
+    plan:
+      - in_parallel:
+          - get: ci-docker
+          - get: metric-registrar-go
+      - task: push
+        image: ci-docker
+        config:
+          platform: linux
+          inputs:
+            - name: metric-registrar-go
+          params:
+          run:
+            path: bash
+            args:
+              - -ecx
+              - |
+                ls
+                cd metric-registrar-go
+                export SYSTEM_DOMAIN=sys.paradise.cf-app.com
+                export CF_USERNAME=admin
+                export CF_PASSWORD=h8-PSu67YSDBTJzmhjBbDOqsm1Jgl4Cp
+                 yes Y | cf install-plugin -r CF-Community "metric-registrar"
+
+                cf login -a api.${SYSTEM_DOMAIN} -u ${CF_USERNAME} -p ${CF_PASSWORD} -o system -s system
+                export name="system"
+                cf target -o ${name}
+                
+                export time=$(date +"%T")
+                
+                for l in {1..20}; do {
+                  export spaceName="paralel-$time"
+                  cf create-space ${spaceName}
+                  cf target -o ${name} -s ${spaceName}
+                
+                  for i in {1..3}; do {
+                  export appName=$spaceName${l}${i}
+                  pwd
+                  ls 
+                  cat manifest.yml
+                  cf push ${appName} -k 128M -m 128M
+                  cf register-metrics-endpoint ${appName} /metrics --internal-port 8080
+                  echo "register ${i}"
+                }; done
+                
+                  sleep 15
+                  yes Y | cf delete-space ${spaceName}
+                  sleep 10
+                }; done
+
+  - name: create-and-remove-applications-2
+    serial: true
+    plan:
+      - in_parallel:
+          - get: ci-docker
+          - get: metric-registrar-go
+      - task: push
+        image: ci-docker
+        config:
+          platform: linux
+          inputs:
+            - name: metric-registrar-go
+          params:
+          run:
+            path: bash
+            args:
+              - -ecx
+              - |
+                ls
+                cd metric-registrar-go
+                export SYSTEM_DOMAIN=sys.paradise.cf-app.com
+                export CF_USERNAME=admin
+                export CF_PASSWORD=h8-PSu67YSDBTJzmhjBbDOqsm1Jgl4Cp
+                 yes Y | cf install-plugin -r CF-Community "metric-registrar"
+
+                cf login -a api.${SYSTEM_DOMAIN} -u ${CF_USERNAME} -p ${CF_PASSWORD} -o system -s system
+                export name="system"
+                cf target -o ${name}
+                
+                export time=$(date +"%T")
+                
+                for l in {1..20}; do {
+                  export spaceName="paralel-$time"
+                  cf create-space ${spaceName}
+                  cf target -o ${name} -s ${spaceName}
+                
+                  for i in {1..3}; do {
+                  export appName=$spaceName${l}${i}
+                  pwd
+                  ls 
+                  cat manifest.yml
+                  cf push ${appName} -k 128M -m 128M
+                  cf register-metrics-endpoint ${appName} /metrics --internal-port 8080
+                  echo "register ${i}"
+                }; done
+                
+                  sleep 15
+                  yes Y | cf delete-space ${spaceName}
+                  sleep 10
+                }; done
+
+groups:
+  - name: metric-store
+    jobs:
+      - create-and-remove-applications
+      - create-and-remove-applications-2
+#      - create-and-remove-applications-3
+#      - create-and-remove-applications-4
