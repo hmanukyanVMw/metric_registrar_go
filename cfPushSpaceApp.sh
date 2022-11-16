@@ -1,7 +1,7 @@
 #!/bin/bash
-export SYSTEM_DOMAIN=sys.paradise.cf-app.com
+export SYSTEM_DOMAIN=sys.taft.cf-app.com
 export CF_USERNAME=admin
-export CF_PASSWORD=h8-PSu67YSDBTJzmhjBbDOqsm1Jgl4Cp
+export CF_PASSWORD=ioBCiKlhq_iOfcEZ1y6Hhj12kM47DIRf
 
 
 cf login -a api.${SYSTEM_DOMAIN} -u ${CF_USERNAME} -p ${CF_PASSWORD} -o system -s system
