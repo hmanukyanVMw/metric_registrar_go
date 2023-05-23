@@ -35,7 +35,7 @@ func incrAdd(counterSlice []prometheus.Counter) {
 		for _, counter := range counterSlice {
 			counter.Inc()
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }
 
@@ -45,7 +45,7 @@ func gaugeInc(gaugeSlice []prometheus.Gauge) {
 			gauge.Inc()
 			time.Sleep(2 * time.Nanosecond)
 		}
-		time.Sleep(2 * time.Second)
+		time.Sleep(9 * time.Second)
 	}
 }
 
